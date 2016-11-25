@@ -4,6 +4,9 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+
+import static proto.tdg.game.WorldState.*;
 
 /**
  * Created by Olva on 7/10/16.
@@ -56,19 +59,20 @@ public class InputUtil {
 
 
     public static Vector3 GetWorldPtFromScreenPt(Vector2 screenPt) {
-        return Launcher.CAM.unproject(new Vector3(screenPt.x,screenPt.y,0));
+        return WorldState.CAM.unproject(new Vector3(screenPt.x,screenPt.y,0));
     }
 
     public static Vector3 GetWorldPtFromScreenPt(Vector3 screenPt) {
-        return Launcher.CAM.unproject(new Vector3(screenPt.x,screenPt.y, screenPt.z));
+        return WorldState.CAM.unproject(new Vector3(screenPt.x,screenPt.y, screenPt.z));
     }
 
     public static void handleAction() {
         if(InputUtil.action == FieldTile.Act.MOVE ) {
             if( !InputUtil.needAction ) {
-                System.out.println("Alright lets go");
+                System.out.println("Alright lets go to x: " + InputUtil.screenStartPt.x + " y: " + InputUtil.screenStartPt.y);
                 selectedActor.setPosition(InputUtil.screenStartPt.x, InputUtil.screenStartPt.y);
-                //clickedActor.getParent().setPosition(x + 1.5f, y + 1.1f);
+                table.setPosition(InputUtil.screenStartPt.x + 1.5f, InputUtil.screenStartPt.y + 1.1f);
+                table.addAction(Actions.removeActor());
                 InputUtil.reset();
             }
             else {
@@ -85,6 +89,6 @@ public class InputUtil {
             selectedActor = actor;
         }
 
-        System.out.println( selectedActor == null ? "selected" : "deselected");
+        System.out.println( selectedActor != null ? "selected" : "deselected");
     }
 }

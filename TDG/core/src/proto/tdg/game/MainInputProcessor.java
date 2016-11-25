@@ -4,7 +4,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 
-import static proto.tdg.game.Launcher.keys;
+import static proto.tdg.game.WorldState.keys;
 
 /**
  * Created by Olva on 7/9/16.

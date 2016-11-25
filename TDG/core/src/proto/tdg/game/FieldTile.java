@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 
-import jdk.internal.util.xml.impl.Input;
+import static proto.tdg.game.WorldState.*;
 
 /**
  * Created by Olva on 11/24/16.
@@ -25,12 +25,20 @@ public class FieldTile extends Actor
         addListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 System.out.println("I'm touched -- " + id + " at x: " + x + " y: " + y);
-                InputUtil.SetSelected(event.getTarget());
+
+                FieldTile tile = (FieldTile)event.getTarget();
 
                 if(InputUtil.needAction) {
-                    System.out.println("Handling action");
-                    InputUtil.screenStartPt = new Vector2(x,y);
+                    InputUtil.screenStartPt = new Vector2(tile.x,tile.y);
                     InputUtil.needAction = false;
+                }
+                else {
+                    InputUtil.SetSelected(event.getTarget());
+
+                    // for now to locate player
+                    if(tile.img != null) {
+                        STAGE.addActor(table);
+                    }
                 }
 
                 return true;
@@ -59,11 +67,8 @@ public class FieldTile extends Actor
 
     @Override
     public void setPosition(float x, float y) {
-        float fx = (float)Math.floor(x);
-        float fy = (float)Math.floor(y);
-
-        this.x = fx;
-        this.y = fy;
+        world[(int)x][(int)y].img = img;
+        img = null;
     }
 
 }
