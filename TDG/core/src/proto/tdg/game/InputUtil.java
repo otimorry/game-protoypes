@@ -1,13 +1,9 @@
 package proto.tdg.game;
 
-import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 
 /**
  * Created by Olva on 7/10/16.
@@ -20,6 +16,8 @@ public class InputUtil {
     public static boolean isRightClick;
     public static boolean needAction;
     public static boolean isLeftDoubleClick;
+    public static FieldTile.Act action = FieldTile.Act.NONE;
+    public static Actor selectedActor = null;
 
     public static Rectangle NormalizedDragBound, DisplayDragBound;
 
@@ -34,6 +32,8 @@ public class InputUtil {
         DisplayDragBound = null;
         NormalizedDragBound = null;
         isLeftDoubleClick = false;
+        action = FieldTile.Act.NONE;
+        selectedActor = null;
     }
 
     public static boolean IsSelect() { return screenStartPt.x == screenEndPt.x && screenStartPt.y == screenEndPt.y; }
@@ -61,5 +61,30 @@ public class InputUtil {
 
     public static Vector3 GetWorldPtFromScreenPt(Vector3 screenPt) {
         return Launcher.CAM.unproject(new Vector3(screenPt.x,screenPt.y, screenPt.z));
+    }
+
+    public static void handleAction() {
+        if(InputUtil.action == FieldTile.Act.MOVE ) {
+            if( !InputUtil.needAction ) {
+                System.out.println("Alright lets go");
+                selectedActor.setPosition(InputUtil.screenStartPt.x, InputUtil.screenStartPt.y);
+                //clickedActor.getParent().setPosition(x + 1.5f, y + 1.1f);
+                InputUtil.reset();
+            }
+            else {
+                System.out.println("Waiting for input");
+            }
+        }
+    }
+
+    public static void SetSelected(Actor actor) {
+        if(actor.equals(selectedActor)) {
+            selectedActor = null;
+        }
+        else {
+            selectedActor = actor;
+        }
+
+        System.out.println( selectedActor == null ? "selected" : "deselected");
     }
 }
