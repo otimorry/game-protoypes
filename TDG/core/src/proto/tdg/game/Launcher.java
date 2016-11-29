@@ -7,10 +7,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
@@ -19,18 +16,16 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import static proto.tdg.game.WorldState.*;
 
 public class Launcher extends ApplicationAdapter {
-    SpriteBatch batch;
-    FieldTile player, bg;
+    FieldTile bg;
     ShapeRenderer shapeRenderer;
 
 	@Override
 	public void create () {
         new WorldState(); // Don't reference -- just instantiate
-
-
         bg = new FieldTile("background", 0,0,15,15, new Texture("bg.png"));
 
-        STAGE.addActor(bg);
+        Group bgGroup = new Group();
+        Group fgGroup = new Group();
 
         // init field tiles
         for(int row = 0; row < world.length; row++ ) {
@@ -47,7 +42,7 @@ public class Launcher extends ApplicationAdapter {
                 }
 
                 world[row][col].setTouchable(Touchable.enabled);
-                STAGE.addActor(world[row][col]);
+                fgGroup.addActor(world[row][col]);
             }
         }
 
@@ -55,8 +50,13 @@ public class Launcher extends ApplicationAdapter {
         shapeRenderer.setAutoShapeType(true);
 
         bg.setTouchable(Touchable.disabled);
+        bgGroup.addActor(bg);
 
-        STAGE.setDebugAll(true);
+        STAGE.addActor(bgGroup);
+        STAGE.addActor(fgGroup);
+
+        STAGE.getBatch().enableBlending();
+        //STAGE.setDebugAll(true);
         Gdx.input.setInputProcessor(STAGE);
 	}
 
@@ -66,12 +66,15 @@ public class Launcher extends ApplicationAdapter {
 		Gdx.gl.glClearColor(173f/255f, 216f/255f, 230f/255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+//        shapeRenderer.begin();
+//        shapeRenderer.setProjectionMatrix(STAGE.getBatch().getProjectionMatrix());
+//        shapeRenderer.set(ShapeRenderer.ShapeType.Line);
+//        shapeRenderer.end();
+
         STAGE.act(Gdx.graphics.getDeltaTime());
         STAGE.draw();
 
-        shapeRenderer.begin();
-        shapeRenderer.setProjectionMatrix(STAGE.getCamera().combined);
-        shapeRenderer.set(ShapeRenderer.ShapeType.Line);
+
 
 
 
@@ -93,7 +96,7 @@ public class Launcher extends ApplicationAdapter {
 //            }
 //        }
 
-        shapeRenderer.end();
+
 	}
 
     @Override
