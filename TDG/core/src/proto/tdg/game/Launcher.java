@@ -22,7 +22,8 @@ public class Launcher extends ApplicationAdapter {
 	@Override
 	public void create () {
         new WorldState(); // Don't reference -- just instantiate
-        bg = new FieldTile("background", 0,0,15,15, new Texture("bg.png"));
+        bg = new FieldTile("background", 0,0,15,15);
+        bg.setFieldObject(new EntityState(bg, new Texture("bg.png")),true);
 
         Group bgGroup = new Group();
         Group fgGroup = new Group();
@@ -34,11 +35,21 @@ public class Launcher extends ApplicationAdapter {
 
                 //player
                 if(row == 0 && col == 0) {
-                    world[row][col] = new FieldTile("player", 0,0, WorldState.TILESIZE, WorldState.TILESIZE, new Texture("badlogic.jpg"));
+                    world[row][col] = new FieldTile(id,row,col, WorldState.TILESIZE, WorldState.TILESIZE);
+                    EntityState player = new EntityState(world[row][col], new Texture("badlogic.jpg"));
+                    world[row][col].setFieldObject(player,true);
                 }
+
+                //enemy
+                else if(row == 4 && col == 4) {
+                    world[row][col] = new FieldTile(id,row,col, WorldState.TILESIZE, WorldState.TILESIZE);
+                    EntityState enemy = new EntityState(world[row][col], new Texture("badlogic.jpg"));
+                    world[row][col].setFieldObject(enemy,true);
+                }
+
                 // other tiles
                 else {
-                    world[row][col] = new FieldTile(id,row,col, WorldState.TILESIZE, WorldState.TILESIZE, null);
+                    world[row][col] = new FieldTile(id,row,col, WorldState.TILESIZE, WorldState.TILESIZE);
                 }
 
                 world[row][col].setTouchable(Touchable.enabled);
@@ -73,7 +84,6 @@ public class Launcher extends ApplicationAdapter {
 
         STAGE.act(Gdx.graphics.getDeltaTime());
         STAGE.draw();
-
 
 
 

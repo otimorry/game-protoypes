@@ -18,16 +18,16 @@ import static proto.tdg.game.WorldState.*;
  */
 public class FieldTile extends Actor
 {
-    enum Act { MOVE, ATTACK, DEFEND, INFO, NONE }
-
-    public float x,y,width,height;
-    public Texture img;
-    public String id;
     public boolean highlight;
+    public String fieldId;
+    public float x,y,width,height;
 
     private ShapeRenderer shapeRenderer;
 
-    public FieldTile(String id, float x, float y, float width, float height, Texture img) {
+    private FieldObject primary;
+    private FieldObject secondary;
+
+    public FieldTile(String fieldId, float x, float y, float width, float height) {
         setBounds(x,y,width,height);
         addListener(ActorListener.GetFieldListener());
 
@@ -37,25 +37,41 @@ public class FieldTile extends Actor
         this.y = y;
         this.width = width;
         this.height = height;
-        this.img = img;
-        this.id = id;
+        this.fieldId = fieldId;
+    }
+
+    public void setFieldObject(FieldObject fieldObject, boolean isPrimary) {
+        if (isPrimary) primary = fieldObject;
+        else secondary = fieldObject;
+    }
+
+    public FieldObject getFieldObject(boolean isPrimary) {
+        return isPrimary ? primary : secondary;
     }
 
     @Override
     public void draw(Batch batch, float alpha){
-        if(img != null) {
-            batch.draw(img,x,y,width,height);
+
+        if(primary != null) {
+            primary.draw(batch,alpha,x,y,width,height);
         }
+
+        if(secondary != null) {
+            secondary.draw(batch,alpha,x,y,width,height);
+        }
+
         batch.end();
 
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
         shapeRenderer.setTransformMatrix(batch.getTransformMatrix());
         shapeRenderer.setColor(highlight ? new Color(1,0,0,0.4f) : Color.CLEAR);
         shapeRenderer.rect(x,y,width,height);
         shapeRenderer.end();
+
         Gdx.gl.glDisable(GL20.GL_BLEND);
 
         batch.begin();
@@ -63,13 +79,7 @@ public class FieldTile extends Actor
 
     @Override
     public void act(float delta) {
+        super.act(delta);
         InputUtil.handleAction();
     }
-
-    @Override
-    public void setPosition(float x, float y) {
-        world[(int)x][(int)y].img = img;
-        img = null;
-    }
-
 }

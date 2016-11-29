@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import proto.tdg.game.Actions.MyMoveToAction;
 
 import static proto.tdg.game.WorldState.*;
 
@@ -19,7 +20,7 @@ public class InputUtil {
     public static boolean isRightClick;
     public static boolean needAction;
     public static boolean isLeftDoubleClick;
-    public static FieldTile.Act action = FieldTile.Act.NONE;
+    public static Enums.Act action = Enums.Act.NONE;
     public static Actor selectedActor = null;
 
     public static Rectangle NormalizedDragBound, DisplayDragBound;
@@ -35,7 +36,7 @@ public class InputUtil {
         DisplayDragBound = null;
         NormalizedDragBound = null;
         isLeftDoubleClick = false;
-        action = FieldTile.Act.NONE;
+        action = Enums.Act.NONE;
         selectedActor = null;
     }
 
@@ -67,16 +68,18 @@ public class InputUtil {
     }
 
     public static void handleAction() {
-        if(InputUtil.action == FieldTile.Act.MOVE ) {
+        if(InputUtil.action == Enums.Act.MOVE ) {
             if( !InputUtil.needAction ) {
                 System.out.println("Alright lets go to x: " + InputUtil.screenStartPt.x + " y: " + InputUtil.screenStartPt.y);
-                selectedActor.setPosition(InputUtil.screenStartPt.x, InputUtil.screenStartPt.y);
+
+                // MoveToAction given target
+                MyMoveToAction moveToAction = new MyMoveToAction(world[(int)InputUtil.screenStartPt.x][(int)InputUtil.screenStartPt.y]);
+                moveToAction.setPrimary(true);
+                selectedActor.addAction(moveToAction);
+
                 table.setPosition(InputUtil.screenStartPt.x + 1.5f, InputUtil.screenStartPt.y + 1.1f);
                 table.addAction(Actions.removeActor());
                 InputUtil.reset();
-            }
-            else {
-                System.out.println("Waiting for input");
             }
         }
     }

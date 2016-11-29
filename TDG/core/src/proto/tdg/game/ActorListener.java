@@ -66,7 +66,7 @@ public class ActorListener {
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                     FieldTile tile = (FieldTile)event.getTarget();
 
-                    System.out.println("I'm touched -- " + tile.id + " at x: " + x + " y: " + y);
+                    System.out.println("I'm touched -- " + tile.fieldId + " at x: " + x + " y: " + y);
 
                     if(InputUtil.needAction) {
                         InputUtil.screenStartPt = new Vector2(tile.x,tile.y);
@@ -76,7 +76,7 @@ public class ActorListener {
                         InputUtil.SetSelected(event.getTarget());
 
                         // for now to locate player
-                        if(tile.img != null) {
+                        if(tile.getFieldObject(true) != null) {
                             STAGE.addActor(table);
                         }
                     }

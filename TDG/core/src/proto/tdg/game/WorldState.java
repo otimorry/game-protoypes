@@ -53,7 +53,7 @@ public class WorldState {
         l1.addListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 System.out.println("I'm touched -- " + "MOVE" + "at x: " + x + " y: " + y);
-                InputUtil.action = FieldTile.Act.MOVE;
+                InputUtil.action = Enums.Act.MOVE;
 //                InputUtil.selectedActor = player;
                 InputUtil.needAction = true;
                 return true;
@@ -65,7 +65,7 @@ public class WorldState {
         l2.addListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 System.out.println("I'm touched -- " + "ATTACK" + "at x: " + x + " y: " + y);
-                InputUtil.action = FieldTile.Act.ATTACK;
+                InputUtil.action = Enums.Act.ATTACK;
 //                InputUtil.selectedActor = player;
 //                InputUtil.needAction = true;
                 return true;
@@ -77,7 +77,7 @@ public class WorldState {
         l3.addListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 System.out.println("I'm touched -- " + "DEFEND" + "at x: " + x + " y: " + y);
-                InputUtil.action = FieldTile.Act.DEFEND;
+                InputUtil.action = Enums.Act.DEFEND;
 //                InputUtil.selectedActor = player;
 //                InputUtil.needAction = true;
                 return true;
