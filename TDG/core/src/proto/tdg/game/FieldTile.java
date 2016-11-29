@@ -80,6 +80,7 @@ public class FieldTile extends Actor
     @Override
     public void act(float delta) {
         super.act(delta);
-        InputUtil.handleAction();
+        if(InputUtil.selectedActor != null && InputUtil.selectedActor.equals(this))
+            InputUtil.handleAction();
     }
 }

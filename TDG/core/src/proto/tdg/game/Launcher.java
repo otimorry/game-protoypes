@@ -65,6 +65,9 @@ public class Launcher extends ApplicationAdapter {
 
         STAGE.addActor(bgGroup);
         STAGE.addActor(fgGroup);
+        STAGE.addActor(table);
+
+        table.setVisible(false);
 
         STAGE.getBatch().enableBlending();
         //STAGE.setDebugAll(true);

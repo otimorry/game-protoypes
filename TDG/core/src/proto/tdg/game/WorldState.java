@@ -50,15 +50,7 @@ public class WorldState {
 
         Label l1 = new Label("MOVE", skin);
         l1.setName("MOVE");
-        l1.addListener(new InputListener() {
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("I'm touched -- " + "MOVE" + "at x: " + x + " y: " + y);
-                InputUtil.action = Enums.Act.MOVE;
-//                InputUtil.selectedActor = player;
-                InputUtil.needAction = true;
-                return true;
-            }
-        });
+        l1.addListener(ActorListener.GetMoveListener());
 
         Label l2 = new Label("ATTACK", skin);
         l2.setName("ATTACK");

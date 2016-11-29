@@ -1,5 +1,10 @@
 package proto.tdg.game;
 
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+
+import static proto.tdg.game.WorldState.table;
+
 /**
  * Created by Olva on 11/28/16.
  */
@@ -24,7 +29,15 @@ public class TileUtility {
         assert from != null;
         assert to != null;
 
+        boolean canMove = false;
+
+        for(Vector2 v : InputUtil.possibleMoves) {
+            if(v.x == to.x && v.y == to.y) {
+                canMove = true;
+            }
+        }
+
         // Destination FieldTile should be empty
-        return from.getFieldObject(isPrimary) != null && to.getFieldObject(isPrimary) == null;
+        return from.getFieldObject(isPrimary) != null && to.getFieldObject(isPrimary) == null && canMove;
     }
 }

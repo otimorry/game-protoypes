@@ -3,9 +3,14 @@ package proto.tdg.game;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.utils.Array;
+import proto.tdg.game.Actions.DisplayMoveAction;
 import proto.tdg.game.Actions.MyMoveToAction;
+
+import java.util.List;
 
 import static proto.tdg.game.WorldState.*;
 
@@ -23,6 +28,8 @@ public class InputUtil {
     public static Enums.Act action = Enums.Act.NONE;
     public static Actor selectedActor = null;
 
+    public static List<Vector2> possibleMoves;
+
     public static Rectangle NormalizedDragBound, DisplayDragBound;
 
     public static void reset() {
@@ -38,6 +45,7 @@ public class InputUtil {
         isLeftDoubleClick = false;
         action = Enums.Act.NONE;
         selectedActor = null;
+        possibleMoves = null;
     }
 
     public static boolean IsSelect() { return screenStartPt.x == screenEndPt.x && screenStartPt.y == screenEndPt.y; }
@@ -77,9 +85,14 @@ public class InputUtil {
                 moveToAction.setPrimary(true);
                 selectedActor.addAction(moveToAction);
 
-                table.setPosition(InputUtil.screenStartPt.x + 1.5f, InputUtil.screenStartPt.y + 1.1f);
-                table.addAction(Actions.removeActor());
-                InputUtil.reset();
+                for(Vector2 v : possibleMoves) {
+                    Array<Action> actions = world[(int)v.x][(int)v.y].getActions();
+                    for( Action a : actions) {
+                        if( a instanceof DisplayMoveAction ) {
+                            ((DisplayMoveAction) a).setCallback(moveToAction);
+                        }
+                    }
+                }
             }
         }
     }
