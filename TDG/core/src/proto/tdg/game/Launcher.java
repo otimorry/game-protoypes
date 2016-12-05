@@ -6,12 +6,16 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import proto.tdg.game.UI.OptionUI;
 
 import static proto.tdg.game.WorldState.*;
 
@@ -22,11 +26,12 @@ public class Launcher extends ApplicationAdapter {
 	@Override
 	public void create () {
         new WorldState(); // Don't reference -- just instantiate
-        bg = new FieldTile("background", 0,0,15,15);
-        bg.setFieldObject(new EntityState(bg, new Texture("bg.png")),true);
+        bg = new FieldTile("background", 0,0, viewportWidth, viewportHeight);
+        bg.setFieldObject(new EntityState(bg, new TextureRegion(new Texture("bg.png"))),true);
 
         Group bgGroup = new Group();
         Group fgGroup = new Group();
+        Group hudGroup = new Group();
 
         // init field tiles
         for(int row = 0; row < world.length; row++ ) {
@@ -35,21 +40,21 @@ public class Launcher extends ApplicationAdapter {
 
                 //player
                 if(row == 0 && col == 0) {
-                    world[row][col] = new FieldTile(id,row,col, WorldState.TILESIZE, WorldState.TILESIZE);
-                    EntityState player = new EntityState(world[row][col], new Texture("badlogic.jpg"));
+                    world[row][col] = new FieldTile(id,row,col, TILESIZE);
+                    EntityState player = new EntityState(world[row][col], new TextureRegion(new Texture("badlogic.jpg")));
                     world[row][col].setFieldObject(player,true);
                 }
 
                 //enemy
                 else if(row == 4 && col == 4) {
-                    world[row][col] = new FieldTile(id,row,col, WorldState.TILESIZE, WorldState.TILESIZE);
-                    EntityState enemy = new EntityState(world[row][col], new Texture("badlogic.jpg"));
+                    world[row][col] = new FieldTile(id,row,col, TILESIZE);
+                    EntityState enemy = new EntityState(world[row][col], new TextureRegion(new Texture("badlogic.jpg")));
                     world[row][col].setFieldObject(enemy,true);
                 }
 
                 // other tiles
                 else {
-                    world[row][col] = new FieldTile(id,row,col, WorldState.TILESIZE, WorldState.TILESIZE);
+                    world[row][col] = new FieldTile(id,row,col, TILESIZE);
                 }
 
                 world[row][col].setTouchable(Touchable.enabled);
@@ -57,20 +62,27 @@ public class Launcher extends ApplicationAdapter {
             }
         }
 
+        Table rootTable = new Table();
+        rootTable.setFillParent(true);
+
         shapeRenderer = new ShapeRenderer();
         shapeRenderer.setAutoShapeType(true);
 
         bg.setTouchable(Touchable.disabled);
         bgGroup.addActor(bg);
 
+        OptionUI = new OptionUI();
+        hudGroup.addActor(OptionUI.getUI());
+
+        rootTable.add(hudGroup).expand().pad(4f);
+
         STAGE.addActor(bgGroup);
         STAGE.addActor(fgGroup);
-        STAGE.addActor(table);
-
-        table.setVisible(false);
-
+        STAGE.addActor(rootTable);
         STAGE.getBatch().enableBlending();
-        //STAGE.setDebugAll(true);
+        STAGE.setDebugAll(true);
+
+
         Gdx.input.setInputProcessor(STAGE);
 	}
 
@@ -80,36 +92,12 @@ public class Launcher extends ApplicationAdapter {
 		Gdx.gl.glClearColor(173f/255f, 216f/255f, 230f/255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-//        shapeRenderer.begin();
-//        shapeRenderer.setProjectionMatrix(STAGE.getBatch().getProjectionMatrix());
-//        shapeRenderer.set(ShapeRenderer.ShapeType.Line);
-//        shapeRenderer.end();
+        NotifyUtility.RemoveOldNotifications();
 
         STAGE.act(Gdx.graphics.getDeltaTime());
         STAGE.draw();
 
-
-
-
-//        // Render game world
-//        for( int row = 0; row < world.length; row++ ) {
-//            for( int col = 0; col < world[row].length; col++ ) {
-//
-//                //wall
-//                if( world[row][col] == 2) {
-//                    shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
-//                    shapeRenderer.setColor(Color.BLACK);
-//                    shapeRenderer.ellipse(col * TILESIZE, (world.length -1 - row) * TILESIZE, TILESIZE, TILESIZE);
-//                }
-//
-//                // grid
-//                shapeRenderer.set(ShapeRenderer.ShapeType.Line);
-//                shapeRenderer.setColor(Color.BLACK);
-//                shapeRenderer.rect(col * TILESIZE, (world.length -1 - row) * TILESIZE, TILESIZE, TILESIZE);
-//            }
-//        }
-
-
+        //NotifyUtility.PrintTotalListeners();
 	}
 
     @Override

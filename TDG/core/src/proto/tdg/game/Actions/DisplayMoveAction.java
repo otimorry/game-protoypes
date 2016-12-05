@@ -1,28 +1,48 @@
 package proto.tdg.game.Actions;
 
-import com.badlogic.gdx.scenes.scene2d.Action;
-import proto.tdg.game.FieldTile;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector2;
+import proto.tdg.game.*;
+import proto.tdg.game.Notification.MoveResult;
+import proto.tdg.game.Notification.Notification;
 
 /**
  * Created by Olva on 11/29/16.
  */
-public class DisplayMoveAction extends Action {
+public class DisplayMoveAction extends Notification {
+    private boolean success;
+    private Vector2 result;
+    private Vector2 displayLoc;
+    private Color highlightColor;
+    private String id;
 
-    private MyMoveToAction move;
+    public DisplayMoveAction(Vector2 displayLoc, Color color) {
+        super();
+        this.id = "Tile[" + displayLoc.x + "][" + displayLoc.y + "]";
+        this.displayLoc = displayLoc;
+        this.highlightColor = color;
+        addType(Enums.Notify.MOVE);
+    }
 
-    public void setCallback(MyMoveToAction move) {
-        this.move = move;
+    public String getId() { return id; }
+
+    public void setHighlightColor(Color color) {
+        this.highlightColor = color;
     }
 
     @Override
     public boolean act(float delta) {
-        ((FieldTile)actor).highlight = true;
-        boolean isDone = move != null && move.isDone();
+        (TileUtility.GetFieldTile(displayLoc)).highlight = !success;
+        (TileUtility.GetFieldTile(displayLoc)).highlightColor = highlightColor;
 
-        if(isDone) {
-            ((FieldTile)actor).highlight = false;
-        }
+        return success;
+    }
 
-        return isDone;
+    @Override
+    protected void moveNotification(MoveResult result) {
+        this.result = result.tileXY;
+        this.success = true; // don't care about success of move action
+
+        NotifyUtility.ToRemove(this);
     }
 }

@@ -1,49 +1,42 @@
 package proto.tdg.game.Actions;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import proto.tdg.game.FieldTile;
-import proto.tdg.game.InputUtil;
-import proto.tdg.game.TileUtility;
+import proto.tdg.game.*;
+import proto.tdg.game.Notification.MoveResult;
 
-import static proto.tdg.game.WorldState.table;
 
 /**
  * Created by Olva on 11/29/16.
  */
 public class MyMoveToAction extends Action {
     private boolean primary;
-    private boolean isDone;
+    private Vector2 vFrom, vTo;
 
-    public MyMoveToAction(Actor target) {
-        setTarget(target);
+    public MyMoveToAction(Vector2 from, Vector2 to) {
+        this.vFrom = from;
+        this.vTo = to;
     }
 
     @Override
     public boolean act(float delta) {
-        isDone = false;
+        boolean isSuccess = false;
 
-        if(!(target instanceof FieldTile)) return isDone = true;
-        else {
-            FieldTile from = (FieldTile)actor;
-            FieldTile to = (FieldTile)target;
+        FieldTile from = TileUtility.GetFieldTile(vFrom);
+        FieldTile to = TileUtility.GetFieldTile(vTo);
 
-            if(TileUtility.CanMoveObject(from, to, primary)) {
-                TileUtility.MoveObject(from,to,primary);
-                table.setPosition(InputUtil.screenStartPt.x + 1.5f, InputUtil.screenStartPt.y + 1.1f);
-            }
-            else {
-                System.out.println("Cannot move object due to obstruction!");
-            }
+        if(TileUtility.CanMoveObject(from, to, primary)) {
+            TileUtility.MoveObject(from,to,primary);
+            isSuccess = true;
         }
 
-        table.setVisible(false);
-        InputUtil.reset();
-        return isDone = true;
-    }
+        MoveResult result = new MoveResult(isSuccess, new Vector2(to.tileX, to.tileY));
+        NotifyUtility.FireNotification(Enums.Notify.MOVE, result);
 
-    public boolean isDone() { return isDone; }
+        InputUtil.reset();
+        return true;
+    }
 
     public void setPrimary(boolean primary) {
         this.primary = primary;

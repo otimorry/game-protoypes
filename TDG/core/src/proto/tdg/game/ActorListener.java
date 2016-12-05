@@ -1,10 +1,15 @@
 package proto.tdg.game;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import proto.tdg.game.Actions.DisplayMoveAction;
+import proto.tdg.game.Actions.DisplayOptionUIAction;
+import proto.tdg.game.Actions.MyMoveToAction;
+import proto.tdg.game.Notification.SelectResult;
+import proto.tdg.game.UI.UI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,18 +73,35 @@ public class ActorListener {
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                     FieldTile tile = (FieldTile)event.getTarget();
 
-                    System.out.println("I'm touched -- " + tile.fieldId + " at x: " + x + " y: " + y);
+                    System.out.println("I'm touched -- " + tile.fieldId + " at tileX: " + tile.tileX + " tileY: " + tile.tileY);
 
-                    if(InputUtil.needAction) {
-                        InputUtil.screenStartPt = new Vector2(tile.x,tile.y);
-                        InputUtil.needAction = false;
+                    if(activeUI != null) {
+                        if(activeUI.getSelected() == null) {
+                            NotifyUtility.FireNotification(Enums.Notify.CANCEL,null);
+                            activeUI = null;
+                        }
+                        else {
+                            switch (activeUI.getSelected()) {
+                                case MOVE:
+                                    // MoveToAction given target
+                                    MyMoveToAction moveToAction = new MyMoveToAction(activeUI.getTileXY(), tile.getTileXY());
+                                    moveToAction.setPrimary(true);
+                                    STAGE.addAction(moveToAction);
+                                    activeUI = null;
+                                    break;
+                                case ATTACK: break;
+                                case DEFEND: break;
+                                default:break;
+                            }
+                        }
                     }
                     else {
-                        InputUtil.SetSelected(event.getTarget());
-
-                        // for now to locate player
                         if(tile.getFieldObject(true) != null) {
-                            table.setVisible(true);
+                            System.out.println("DisplayOptionUIAction");
+                            DisplayOptionUIAction displayOptionUIAction = new DisplayOptionUIAction(OptionUI, tile.tileX, tile.tileY);
+                            NotifyUtility.AddNotifyListener(displayOptionUIAction);
+                            activeUI = displayOptionUIAction;
+                            STAGE.addAction(displayOptionUIAction);
                         }
                     }
                     return true;
@@ -88,6 +110,7 @@ public class ActorListener {
                 @Override
                 public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                     ((FieldTile)event.getTarget()).highlight = true;
+                    ((FieldTile)event.getTarget()).highlightColor = new Color(1,0,0,0.4f);
                 }
 
                 @Override
@@ -102,37 +125,59 @@ public class ActorListener {
     public static InputListener GetMoveListener() {
         if(moveListener == null) {
             moveListener = new InputListener() {
-
                 private int mv;
 
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                    FieldTile tile = (FieldTile)InputUtil.selectedActor;
+                    UI ui = (UI)event.getTarget().getParent();
+                    Vector2 xy = ui.getParentContainer().getTileXY();
 
-                    //TODO: Logic for moving secondary object
+                    FieldTile tile = world[(int)xy.x][(int)xy.y];
+
+
+                    //TODO: Add Logic for moving secondary object too
                     FieldObject obj = tile.getFieldObject(true);
 
-                    System.out.println("I'm touched -- " + "MOVE" + "at x: " + x + " y: " + y);
-                    InputUtil.action = Enums.Act.MOVE;
-                    InputUtil.needAction = true;
+                    System.out.println("I'm touched -- " + "MOVE" + "at tX: " + tile.tileX + " posY: " + tile.tileY);
 
                     if(obj instanceof EntityState) {
                         //mv = ((EntityState)obj).mv;
-                        mv = 3;
+                        mv = 5;
                     }
 
-                    Vector2 origin = new Vector2(tile.x,tile.y);
+                    Vector2 origin = new Vector2(tile.tileX,tile.tileY);
                     List<Vector2> possibles = new ArrayList<>();
                     possibles.add(origin);
-                    buildPossibleMoves(possibles, new ArrayList<Vector2>(), origin, 0);
+                    buildPossibleMoves(possibles, new ArrayList<>(), origin, 0);
                     possibles.remove(origin);
 
                     InputUtil.possibleMoves = possibles;
 
                     for(Vector2 v : possibles) {
-                        world[(int)v.x][(int)v.y].addAction(new DisplayMoveAction());
+                        DisplayMoveAction displayMoveAction = new DisplayMoveAction(v, new Color(1,0,0,0.4f));
+
+                        if(TileUtility.GetFieldTile(v).getFieldObject(true) != null &&
+                                !TileUtility.GetFieldTile(v).getFieldObject(true).equals(obj)  ) {
+                            displayMoveAction.setHighlightColor(new Color(0,1,1,0.4f));
+                        }
+
+                        NotifyUtility.AddNotifyListener(displayMoveAction);
+                        STAGE.addAction(displayMoveAction);
                     }
 
+                    SelectResult result = new SelectResult(Enums.Act.MOVE);
+                    NotifyUtility.FireNotification(Enums.Notify.SELECT, result);
+
                     return true;
+                }
+
+                @Override
+                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                    event.getTarget().setColor(Color.GREEN);
+                }
+
+                @Override
+                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                    event.getTarget().setColor(Color.WHITE);
                 }
 
                 private List<Vector2> buildPossibleMoves( List<Vector2> all, List<Vector2> ignore, Vector2 origin, int current ) {
@@ -161,17 +206,17 @@ public class ActorListener {
                         if( ignore.contains(v)) continue;
 
                         Vector2 up = null, left = null, right = null, down = null;
-                        if(v.y + WorldState.TILESIZE < world.length)
-                            up = new Vector2( v.x, v.y + WorldState.TILESIZE );
+                        if(v.y + 1 < world.length)
+                            up = new Vector2( v.x, v.y + 1 );
 
-                        if(v.y - WorldState.TILESIZE >= 0)
-                            down = new Vector2( v.x, v.y - WorldState.TILESIZE );
+                        if(v.y - 1 >= 0)
+                            down = new Vector2( v.x, v.y - 1 );
 
-                        if(v.x + WorldState.TILESIZE < world[0].length)
-                            right = new Vector2( v.x + WorldState.TILESIZE, v.y);
+                        if(v.x + 1 < world[0].length)
+                            right = new Vector2( v.x + 1, v.y);
 
-                        if(v.x - WorldState.TILESIZE >= 0)
-                            left = new Vector2( v.x - WorldState.TILESIZE, v.y);
+                        if(v.x - 1 >= 0)
+                            left = new Vector2( v.x - 1, v.y);
 
                         if( up != null && !all.contains(up) && !temp.contains(up)) temp.add(up);
                         if( down != null && !all.contains(down) && !temp.contains(down)) temp.add(down);

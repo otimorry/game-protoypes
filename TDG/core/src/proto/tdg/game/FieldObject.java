@@ -2,6 +2,7 @@ package proto.tdg.game;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 
@@ -10,9 +11,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
  */
 public abstract class FieldObject extends Actor {
     protected FieldTile tile;
-    protected Texture img;
+    protected TextureRegion img;
 
-    public FieldObject(FieldTile tile, Texture img) {
+    public FieldObject(FieldTile tile, TextureRegion img) {
         setFieldTile(tile);
         this.img = img;
     }
@@ -23,5 +24,6 @@ public abstract class FieldObject extends Actor {
         this.tile = tile;
     }
 
-    public abstract void draw(Batch batch, float alpha, float x, float y, float width, float height);
+    public abstract void draw(Batch batch, float alpha, float x, float y, float width, float height,
+                              float originX, float originY, float scaleXY );
 }

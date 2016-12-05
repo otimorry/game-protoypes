@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.utils.Array;
 import proto.tdg.game.Actions.DisplayMoveAction;
 import proto.tdg.game.Actions.MyMoveToAction;
@@ -75,27 +74,18 @@ public class InputUtil {
         return WorldState.CAM.unproject(new Vector3(screenPt.x,screenPt.y, screenPt.z));
     }
 
-    public static void handleAction() {
-        if(InputUtil.action == Enums.Act.MOVE ) {
-            if( !InputUtil.needAction ) {
-                System.out.println("Alright lets go to x: " + InputUtil.screenStartPt.x + " y: " + InputUtil.screenStartPt.y);
-
-                // MoveToAction given target
-                MyMoveToAction moveToAction = new MyMoveToAction(world[(int)InputUtil.screenStartPt.x][(int)InputUtil.screenStartPt.y]);
-                moveToAction.setPrimary(true);
-                selectedActor.addAction(moveToAction);
-
-                for(Vector2 v : possibleMoves) {
-                    Array<Action> actions = world[(int)v.x][(int)v.y].getActions();
-                    for( Action a : actions) {
-                        if( a instanceof DisplayMoveAction ) {
-                            ((DisplayMoveAction) a).setCallback(moveToAction);
-                        }
-                    }
-                }
-            }
-        }
-    }
+//    public static void handleAction() {
+//        if(InputUtil.action == Enums.Act.MOVE ) {
+//            if( !InputUtil.needAction ) {
+//                System.out.println("Alright lets go to posX: " + InputUtil.screenStartPt.x + " posY: " + InputUtil.screenStartPt.y);
+//
+//                // MoveToAction given target
+//                MyMoveToAction moveToAction = new MyMoveToAction(world[(int)InputUtil.screenStartPt.x][(int)InputUtil.screenStartPt.y]);
+//                moveToAction.setPrimary(true);
+//                selectedActor.addAction(moveToAction);
+//            }
+//        }
+//    }
 
     public static void SetSelected(Actor actor) {
         if(actor.equals(selectedActor)) {
