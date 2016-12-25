@@ -1,22 +1,17 @@
-package proto.tdg.game;
+package proto.tdg.game.Utility;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.utils.Array;
-import proto.tdg.game.Actions.DisplayMoveAction;
-import proto.tdg.game.Actions.MyMoveToAction;
+import proto.tdg.game.WorldState;
 
 import java.util.List;
-
-import static proto.tdg.game.WorldState.*;
 
 /**
  * Created by Olva on 7/10/16.
  */
-public class InputUtil {
+public class InputUtility {
     public static boolean isDrag;
     public static Vector2 screenStartPt, screenEndPt, screenDragPt;
     public static Vector3 worldStartPt, worldEndPt, worldDragPt;
@@ -24,7 +19,7 @@ public class InputUtil {
     public static boolean isRightClick;
     public static boolean needAction;
     public static boolean isLeftDoubleClick;
-    public static Enums.Act action = Enums.Act.NONE;
+    public static EnumsUtility.Act action = EnumsUtility.Act.NONE;
     public static Actor selectedActor = null;
 
     public static List<Vector2> possibleMoves;
@@ -42,7 +37,7 @@ public class InputUtil {
         DisplayDragBound = null;
         NormalizedDragBound = null;
         isLeftDoubleClick = false;
-        action = Enums.Act.NONE;
+        action = EnumsUtility.Act.NONE;
         selectedActor = null;
         possibleMoves = null;
     }
@@ -75,12 +70,12 @@ public class InputUtil {
     }
 
 //    public static void handleAction() {
-//        if(InputUtil.action == Enums.Act.MOVE ) {
-//            if( !InputUtil.needAction ) {
-//                System.out.println("Alright lets go to posX: " + InputUtil.screenStartPt.x + " posY: " + InputUtil.screenStartPt.y);
+//        if(InputUtility.action == EnumsUtility.Act.MOVE ) {
+//            if( !InputUtility.needAction ) {
+//                System.out.println("Alright lets go to posX: " + InputUtility.screenStartPt.x + " posY: " + InputUtility.screenStartPt.y);
 //
 //                // MoveToAction given target
-//                MyMoveToAction moveToAction = new MyMoveToAction(world[(int)InputUtil.screenStartPt.x][(int)InputUtil.screenStartPt.y]);
+//                MyMoveToAction moveToAction = new MyMoveToAction(world[(int)InputUtility.screenStartPt.x][(int)InputUtility.screenStartPt.y]);
 //                moveToAction.setPrimary(true);
 //                selectedActor.addAction(moveToAction);
 //            }

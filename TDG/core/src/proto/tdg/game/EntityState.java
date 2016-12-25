@@ -9,8 +9,6 @@ import com.badlogic.gdx.math.Vector2;
  * Created by Olva on 11/28/16.
  */
 public class EntityState extends FieldObject {
-    public int hp, mp, str, def, agi, mv;
-
     public EntityState(FieldTile tile, TextureRegion img) {
         super(tile,img);
     }

@@ -3,19 +3,17 @@ package proto.tdg.game;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.*;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
-import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import proto.tdg.game.Actions.TimerAction;
+import proto.tdg.game.Events.GameEvent;
+import proto.tdg.game.UI.GameTimer;
 import proto.tdg.game.UI.OptionUI;
+import proto.tdg.game.Utility.EventUtility;
 
 import static proto.tdg.game.WorldState.*;
 
@@ -39,16 +37,24 @@ public class Launcher extends ApplicationAdapter {
                 String id = "Field[" + row + "][" + col +"]";
 
                 //player
-                if(row == 0 && col == 0) {
+                if(row == 2 && col == 2) {
                     world[row][col] = new FieldTile(id,row,col, TILESIZE);
                     EntityState player = new EntityState(world[row][col], new TextureRegion(new Texture("badlogic.jpg")));
+                    player.time = 2;
                     world[row][col].setFieldObject(player,true);
                 }
-
+                // player 2
+                else if(row == 4 && col == 2) {
+                    world[row][col] = new FieldTile(id,row,col, TILESIZE);
+                    EntityState player = new EntityState(world[row][col], new TextureRegion(new Texture("badlogic.jpg")));
+                    player.time = 4;
+                    world[row][col].setFieldObject(player,true);
+                }
                 //enemy
                 else if(row == 4 && col == 4) {
                     world[row][col] = new FieldTile(id,row,col, TILESIZE);
                     EntityState enemy = new EntityState(world[row][col], new TextureRegion(new Texture("badlogic.jpg")));
+                    enemy.time = 6;
                     world[row][col].setFieldObject(enemy,true);
                 }
 
@@ -75,6 +81,7 @@ public class Launcher extends ApplicationAdapter {
         hudGroup.addActor(OptionUI.getUI());
 
         rootTable.add(hudGroup).expand().pad(4f);
+        Timer.addTo(rootTable);
 
         STAGE.addActor(bgGroup);
         STAGE.addActor(fgGroup);
@@ -82,9 +89,11 @@ public class Launcher extends ApplicationAdapter {
         STAGE.getBatch().enableBlending();
         STAGE.setDebugAll(true);
 
+        STAGE.addAction(Timer);
+        Timer.setTimerState(GameTimer.TimerState.RUNNING);
 
         Gdx.input.setInputProcessor(STAGE);
-	}
+    }
 
 
 	@Override
@@ -92,12 +101,12 @@ public class Launcher extends ApplicationAdapter {
 		Gdx.gl.glClearColor(173f/255f, 216f/255f, 230f/255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        NotifyUtility.RemoveOldNotifications();
+        EventUtility.RemoveOldEvents();
 
         STAGE.act(Gdx.graphics.getDeltaTime());
         STAGE.draw();
 
-        //NotifyUtility.PrintTotalListeners();
+        //EventUtility.PrintTotalListeners();
 	}
 
     @Override

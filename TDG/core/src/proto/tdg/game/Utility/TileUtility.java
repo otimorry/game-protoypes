@@ -1,7 +1,9 @@
-package proto.tdg.game;
+package proto.tdg.game.Utility;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Action;
+import proto.tdg.game.FieldObject;
+import proto.tdg.game.FieldTile;
+import proto.tdg.game.WorldState;
 
 
 /**
@@ -30,12 +32,12 @@ public class TileUtility {
     }
 
     public static boolean CanMoveObject(FieldTile from, FieldTile to, boolean isPrimary) {
-        assert from != null;
-        assert to != null;
+        if (from == null) throw new AssertionError();
+        if (to == null) throw new AssertionError();
 
         boolean canMove = false;
 
-        for(Vector2 v : InputUtil.possibleMoves) {
+        for(Vector2 v : InputUtility.possibleMoves) {
             if(v.x == to.tileX && v.y == to.tileY) {
                 canMove = true;
             }

@@ -1,22 +1,23 @@
 package proto.tdg.game.Actions;
 
 import com.badlogic.gdx.math.Vector2;
-import proto.tdg.game.Enums;
-import proto.tdg.game.Notification.MoveResult;
-import proto.tdg.game.Notification.Notification;
-import proto.tdg.game.Notification.SelectResult;
-import proto.tdg.game.NotifyUtility;
+import proto.tdg.game.FieldObject;
+import proto.tdg.game.Utility.EnumsUtility;
+import proto.tdg.game.Utility.EventUtility;
+import proto.tdg.game.Events.GameEvent;
+import proto.tdg.game.Events.GameEventListener;
 import proto.tdg.game.UI.OptionUI;
 
 /**
  * Created by Olva on 11/29/16.
  */
-public class DisplayOptionUIAction extends Notification {
+public class DisplayOptionUIAction extends GameEventListener {
     private String id;
-    private boolean success;
+    private boolean done;
     private OptionUI ui;
     private Vector2 tileXY;
-    private Enums.Act select;
+    private EnumsUtility.Act select;
+    private boolean hide;
 
     public DisplayOptionUIAction(OptionUI ui) {
         this(ui,0,0);
@@ -28,11 +29,15 @@ public class DisplayOptionUIAction extends Notification {
         this.ui = ui;
         this.id = "Tile[" + tileX + "][" + tileY + "]";
         ui.setParentContainer(this);
+        ui.refresh();
         setPosition(tileX,tileY);
         tileXY = new Vector2(tileX,tileY);
 
-        addType(Enums.Notify.MOVE);
-        addType(Enums.Notify.SELECT);
+        listenTo(GameEvent.Type.move);
+        listenTo(GameEvent.Type.select);
+        listenTo(GameEvent.Type.attack);
+
+        EventUtility.AddNotifyListener(this);
     }
 
     public void setPosition(float x, float y) {
@@ -41,33 +46,59 @@ public class DisplayOptionUIAction extends Notification {
 
     @Override
     public boolean act(float delta) {
-        ui.getUI().setVisible(!success);
+        ui.getUI().setVisible(!hide);
 
-        return success;
+        return done;
     }
 
     @Override
-    protected void moveNotification(MoveResult result) {
-        this.success = true; // don't care about success
-        this.tileXY = result.tileXY;
+    protected boolean moveEvent(boolean done, Vector2 tileXY) {
+        this.done = done; // don't care about done
+        this.tileXY = tileXY;
 
-        NotifyUtility.ToRemove(this);
+        // not done yet
+        if(!this.done) {
+            ui.disableActors("MOVE");
+            hide(false);
+        }
+        else {
+            EventUtility.ToRemove(this);
+        }
+
+        return true;
     }
 
     @Override
-    protected void selectNotification(SelectResult result) {
-        this.select = result.select;
+    protected boolean selectEvent(boolean success, EnumsUtility.Act select) {
+        setSelected(select);
+        return true;
     }
 
     @Override
-    protected void cancelNotification() {
-        super.cancelNotification();
-        this.success = true;
+    protected boolean attackEvent(boolean done, FieldObject initiator, FieldObject... targets) {
+        this.done = hide = true;
+        EventUtility.ToRemove(this);
+        return true;
     }
 
-    public Enums.Act getSelected() { return select; }
+    @Override
+    protected boolean cancelEvent() {
+        super.cancelEvent();
+        this.done = hide = true;
+        return true;
+    }
+
+    public EnumsUtility.Act getSelected() { return select; }
+
+    public void setSelected(EnumsUtility.Act select) {
+        this.select = select;
+    }
 
     public Vector2 getTileXY() {
         return tileXY;
+    }
+
+    public void hide(boolean hide) {
+        this.hide = hide;
     }
 }

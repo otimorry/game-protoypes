@@ -3,16 +3,18 @@ package proto.tdg.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import proto.tdg.game.Actions.DisplayOptionUIAction;
+import proto.tdg.game.UI.GameTimer;
 import proto.tdg.game.UI.OptionUI;
+import proto.tdg.game.Utility.EventUtility;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by olva on 11/24/16.
@@ -29,12 +31,16 @@ public class WorldState {
     public static Stage STAGE;
     public static Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
     public static OptionUI OptionUI;
+    public static GameTimer Timer;
+
+    public static Map<Integer, Entity> allGameObjects = new HashMap<>();
+    private static int count;
 
     public static DisplayOptionUIAction activeUI;
 
     public WorldState() {
 
-        new NotifyUtility(); // no need to reference
+        new EventUtility(); // no need to reference
 
         float width = Gdx.graphics.getWidth();
         float height = Gdx.graphics.getHeight();
@@ -55,7 +61,14 @@ public class WorldState {
         float camY = viewportHeight * (height/width);
 
         CAM = new OrthographicCamera(camX, camY);
+        Timer = new GameTimer(0,10,skin);
 
         STAGE = new Stage( new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, CAM), new SpriteBatch());
+    }
+
+    public static void AddObject(Entity entity) {
+        allGameObjects.put(count, entity);
+        entity.setId(count);
+        count++;
     }
 }

@@ -27,7 +27,6 @@ public class Cooldown implements Serializable
     // Start cooldown
     public void startCooldown() {
         startCooldown = cooldown;
-        //allCooldowns.add(this);
     }
 
     public boolean isOnCooldown() {

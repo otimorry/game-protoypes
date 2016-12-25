@@ -2,16 +2,18 @@ package proto.tdg.game.Actions;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
-import proto.tdg.game.*;
-import proto.tdg.game.Notification.MoveResult;
-import proto.tdg.game.Notification.Notification;
+import proto.tdg.game.Events.GameEvent;
+import proto.tdg.game.Events.GameEventListener;
+import proto.tdg.game.FieldObject;
+import proto.tdg.game.Utility.EventUtility;
+import proto.tdg.game.Utility.TileUtility;
 
 /**
  * Created by Olva on 11/29/16.
  */
-public class DisplayMoveAction extends Notification {
-    private boolean success;
-    private Vector2 result;
+public class DisplayMoveAction extends GameEventListener {
+    private boolean done;
+    private Vector2 tileXY;
     private Vector2 displayLoc;
     private Color highlightColor;
     private String id;
@@ -21,7 +23,11 @@ public class DisplayMoveAction extends Notification {
         this.id = "Tile[" + displayLoc.x + "][" + displayLoc.y + "]";
         this.displayLoc = displayLoc;
         this.highlightColor = color;
-        addType(Enums.Notify.MOVE);
+
+        listenTo(GameEvent.Type.move);
+        listenTo(GameEvent.Type.attack);
+
+        EventUtility.AddNotifyListener(this);
     }
 
     public String getId() { return id; }
@@ -32,17 +38,31 @@ public class DisplayMoveAction extends Notification {
 
     @Override
     public boolean act(float delta) {
-        (TileUtility.GetFieldTile(displayLoc)).highlight = !success;
+        (TileUtility.GetFieldTile(displayLoc)).highlight = !done;
         (TileUtility.GetFieldTile(displayLoc)).highlightColor = highlightColor;
 
-        return success;
+        return done;
     }
 
     @Override
-    protected void moveNotification(MoveResult result) {
-        this.result = result.tileXY;
-        this.success = true; // don't care about success of move action
+    protected boolean moveEvent(boolean done, Vector2 tileXY) {
+        this.tileXY = tileXY;
+        this.done = true;
+        EventUtility.ToRemove(this);
+        return true;
+    }
 
-        NotifyUtility.ToRemove(this);
+    @Override
+    protected boolean attackEvent(boolean done, FieldObject initiator, FieldObject... targets) {
+        this.done = true;
+        EventUtility.ToRemove(this);
+        return true;
+    }
+
+    @Override
+    protected boolean cancelEvent() {
+        super.cancelEvent();
+        this.done = true;
+        return true;
     }
 }

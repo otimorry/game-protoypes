@@ -1,10 +1,10 @@
 package proto.tdg.game;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import proto.tdg.game.Events.EventListener;
 
 /**
  * Created by Olva on 11/28/16.
@@ -12,6 +12,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 public abstract class FieldObject extends Actor {
     protected FieldTile tile;
     protected TextureRegion img;
+
+    public int hp, mp, str, def, agi, mv;
+    public float time = -1;
 
     public FieldObject(FieldTile tile, TextureRegion img) {
         setFieldTile(tile);

@@ -7,6 +7,11 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import proto.tdg.game.Actions.ResetTileAction;
+import proto.tdg.game.Actions.TimerAction;
+import proto.tdg.game.UI.GameTimer;
+import proto.tdg.game.Utility.EventUtility;
+import proto.tdg.game.Utility.InputListenerUtility;
 
 import static proto.tdg.game.WorldState.*;
 
@@ -19,6 +24,8 @@ public class FieldTile extends Actor
     public Color highlightColor;
     public String fieldId;
     public float tileX, tileY, posX, posY,width, height;
+    public boolean isVisited;
+    public int distance;
 
     private ShapeRenderer shapeRenderer;
 
@@ -31,7 +38,7 @@ public class FieldTile extends Actor
     public FieldTile(String fieldId, float x, float y, float widthUnit, float heightUnit) {
         shapeRenderer = new ShapeRenderer();
 //        ToRemove = new ArrayList<>();
-        addListener(ActorListener.GetFieldListener());
+        addListener(InputListenerUtility.GetFieldListener());
 
         this.fieldId = fieldId;
         this.tileX = x;
@@ -67,9 +74,24 @@ public class FieldTile extends Actor
         return isPrimary ? primary : secondary;
     }
 
+    public void visit(int distance) {
+        isVisited = true;
+        this.distance = distance;
+        STAGE.addAction(new ResetTileAction(new Vector2(tileX,tileY)));
+    }
+
+    public void reset() {
+        isVisited = false;
+        distance = 0;
+    }
+
     @Override
     public void draw(Batch batch, float alpha){
         if(primary != null) {
+            if( primary.time >= 0 && Timer.getTime() >= primary.time) {
+                System.out.println(" Command Time: " +  primary.time);
+                STAGE.addAction(new TimerAction(GameTimer.TimerState.PAUSED, primary));
+            }
             primary.draw(batch,alpha, posX, posY,width,height,0,0,1);
         }
 

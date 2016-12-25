@@ -2,9 +2,11 @@ package proto.tdg.game.Actions;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import proto.tdg.game.*;
-import proto.tdg.game.Notification.MoveResult;
+import proto.tdg.game.Events.GameEvent;
+import proto.tdg.game.Utility.EventUtility;
+import proto.tdg.game.Utility.InputUtility;
+import proto.tdg.game.Utility.TileUtility;
 
 
 /**
@@ -21,20 +23,19 @@ public class MyMoveToAction extends Action {
 
     @Override
     public boolean act(float delta) {
-        boolean isSuccess = false;
+        boolean done = true;
 
         FieldTile from = TileUtility.GetFieldTile(vFrom);
         FieldTile to = TileUtility.GetFieldTile(vTo);
 
         if(TileUtility.CanMoveObject(from, to, primary)) {
             TileUtility.MoveObject(from,to,primary);
-            isSuccess = true;
+            done = false;
         }
 
-        MoveResult result = new MoveResult(isSuccess, new Vector2(to.tileX, to.tileY));
-        NotifyUtility.FireNotification(Enums.Notify.MOVE, result);
+        GameEvent.FireMoveEvent(done, new Vector2(to.tileX, to.tileY));
 
-        InputUtil.reset();
+        InputUtility.reset();
         return true;
     }
 
